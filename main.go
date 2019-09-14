@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -34,7 +35,11 @@ func getStudent(w http.ResponseWriter, r *http.Request) {
 }
 func addStudent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
+	var student Student
+	_ = json.NewDecoder(r.Body).Decode(&student)
+	student.ID = rand.Intn(10000)
+	students = append(students, student)
+	json.NewEncoder(w).Encode(student)
 }
 func main() {
 	name := "Shahnawaz Khan"
@@ -45,6 +50,6 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/students/", getStudents).Methods("GET")
 	r.HandleFunc("/api/students/{id}", getStudent).Methods("GET")
-	r.HandleFunc("/api/students/{id}", addStudent).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8000", r))
+	r.HandleFunc("/api/students/add", addStudent).Methods("POST")
+	log.Fatal(http.ListenAndServe(":8001", r))
 }
